@@ -8,6 +8,8 @@ import { Match, Prediction, User, ScoreDetail, LeaderboardUser } from "../types"
 import { calculatePredictionPoints, getFlagUrl } from "../initialData";
 import { Save, Filter, ShieldCheck, Sparkles, AlertCircle, RefreshCw, Trophy, Clock, Lock, Play, Compass, HelpCircle } from "lucide-react";
 import UserStatsHero from "./UserStatsHero";
+// @ts-ignore
+import unipioBanner from "../assets/images/unipio_banner_1780768550888.png";
 
 interface PredictionsDashboardProps {
   user: User | null;
@@ -247,6 +249,18 @@ export default function PredictionsDashboard({
   return (
     <div className="space-y-6 text-white leading-relaxed">
       
+      {/* BANNER GIGANTE HERO COM FADE DE TRANSIÇÃO (Estilo Referência) */}
+      <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-white/5 bg-neutral-950 aspect-[16/7] md:aspect-[21/9] select-none group">
+        <img
+          src={unipioBanner}
+          alt="Bolão UNIPIO Pokabas TV"
+          className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-102"
+          referrerPolicy="no-referrer"
+        />
+        {/* Fade de transição para a sessão de baixo */}
+        <div className="absolute inset-x-0 bottom-0 h-28 md:h-44 bg-gradient-to-t from-[#0B1528] via-[#0B1528]/70 to-transparent pointer-events-none"></div>
+      </div>
+
       {/* 0. HERO DASHBOARD DE ESTATÍSTICAS DO PALPITEIRO (Estilo Chelsea reference) */}
       <UserStatsHero
         user={user}

@@ -7,8 +7,7 @@ import React, { useMemo } from "react";
 import { User, Match, Prediction, LeaderboardUser } from "../types";
 import { calculatePredictionPoints } from "../initialData";
 import { Target, Zap, Award, Gauge, Star } from "lucide-react";
-// @ts-ignore
-import unipioBanner from "../assets/images/unipio_banner_1780768550888.png";
+
 
 interface UserStatsHeroProps {
   user: User | null;
@@ -219,8 +218,8 @@ export default function UserStatsHero({
 
         </div>
 
-        {/* LADO DIREITO: FOTO DO JOGADOR/AVATAR E NOME EM DESTAQUE + BANNER PARCEIRO */}
-        <div className="lg:col-span-5 flex flex-col md:flex-row lg:flex-col gap-6 justify-center items-center lg:items-start w-full">
+        {/* LADO DIREITO: FOTO DO JOGADOR/AVATAR E NOME EM DESTAQUE */}
+        <div className="lg:col-span-5 flex flex-col justify-center items-center lg:items-start w-full">
           
           {/* Estrutura de Perfil do Jogador (Esports Style) */}
           <div className="flex items-center gap-6 w-full max-w-sm justify-center lg:justify-start">
@@ -253,25 +252,6 @@ export default function UserStatsHero({
               <p className="text-[9px] text-slate-400 uppercase font-mono tracking-widest font-bold mt-2 flex items-center gap-1.5">
                 <Star className="w-3 h-3 text-yellow-405 text-yellow-300 fill-yellow-300" />
                 <span>Nível: {user ? "Líder Técnico" : "Convidado Especial"}</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Banner do Projeto como Card Incorporado */}
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl bg-neutral-950/40 aspect-[16/9] w-full max-w-sm group">
-            <img
-              src={unipioBanner}
-              alt="Bolão UNIPIO Pokabas TV"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              referrerPolicy="no-referrer"
-            />
-            {/* Overlay sutil escuro */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 text-left">
-              <span className="text-[8px] bg-emerald-500 text-black font-black uppercase px-2 py-0.5 rounded-full tracking-wider w-fit mb-1">
-                Parceiro Oficial
-              </span>
-              <p className="text-[10px] text-slate-300 font-medium leading-relaxed">
-                Bolão UNIPIO & Pokabas TV - Copa do Mundo FIFA 2026
               </p>
             </div>
           </div>
