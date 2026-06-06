@@ -22,6 +22,7 @@ export interface Match {
   isFinished?: boolean;
   isFavoriteTeam1?: boolean; // True se Time 1 é favorito, False se Time 2 é favorito (Underdog/Zebra)
   knockoutWinnerCode?: string; // Código da seleção (Ex: BRA) que venceu nos pênaltis/prorrogação
+  isLive?: boolean; // True se o jogo está ocorrendo no momento
 }
 
 export interface Prediction {

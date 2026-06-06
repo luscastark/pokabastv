@@ -838,3 +838,105 @@ export function buildLeaderboard(
     return a.name.localeCompare(b.name);
   });
 }
+
+export const parseMatchDateTime = (dateStr: string, timeStr: string): Date => {
+  const [day, month, year] = dateStr.split("/").map(Number);
+  const [hour, minute] = timeStr.split(":").map(Number);
+  return new Date(year, month - 1, day, hour, minute);
+};
+
+export const getDeterministicScore = (matchId: string, team1Code: string, team2Code: string, isKnockout: boolean) => {
+  const hash = (team1Code.charCodeAt(0) + team2Code.charCodeAt(0) + matchId.charCodeAt(matchId.length - 1)) % 5;
+  const isStrong1 = STRONG_TEAMS.includes(team1Code);
+  const isStrong2 = STRONG_TEAMS.includes(team2Code);
+  
+  let g1 = 0;
+  let g2 = 0;
+
+  if (isStrong1 && !isStrong2) {
+    g1 = 2 + (hash % 2);
+    g2 = hash % 2;
+  } else if (!isStrong1 && isStrong2) {
+    g1 = hash % 2;
+    g2 = 2 + (hash % 2);
+  } else {
+    g1 = hash % 3;
+    g2 = (hash + 1) % 3;
+  }
+
+  if (isKnockout && g1 === g2) {
+    g1 += 1;
+  }
+
+  return { g1, g2 };
+};
+
+export function getAutomatedMatchStatus(m: Match, systemTime: Date, onlineMatch?: any): Match {
+  if (onlineMatch) {
+    return {
+      ...m,
+      simulatedResult1: onlineMatch.simulatedResult1,
+      simulatedResult2: onlineMatch.simulatedResult2,
+      isFinished: onlineMatch.isFinished,
+      isLive: onlineMatch.isLive,
+      knockoutWinnerCode: onlineMatch.knockoutWinnerCode,
+    };
+  }
+
+  const matchTime = parseMatchDateTime(m.date, m.time);
+  const diffMs = systemTime.getTime() - matchTime.getTime();
+  const diffMins = diffMs / (1000 * 60);
+  const isKnockout = !m.id.startsWith("m");
+
+  if (diffMins < 0) {
+    return {
+      ...m,
+      simulatedResult1: undefined,
+      simulatedResult2: undefined,
+      isFinished: false,
+      isLive: false,
+      knockoutWinnerCode: undefined,
+    };
+  }
+
+  if (diffMins >= 0 && diffMins < 120) {
+    const finalScores = getDeterministicScore(m.id, m.team1.code, m.team2.code, isKnockout);
+    const g1 = Math.min(finalScores.g1, Math.floor(diffMins / 35));
+    const g2 = Math.min(finalScores.g2, Math.floor(diffMins / 35));
+    
+    return {
+      ...m,
+      simulatedResult1: g1,
+      simulatedResult2: g2,
+      isFinished: false,
+      isLive: true,
+      knockoutWinnerCode: undefined,
+    };
+  }
+
+  const finalScores = getDeterministicScore(m.id, m.team1.code, m.team2.code, isKnockout);
+  let g1 = finalScores.g1;
+  let g2 = finalScores.g2;
+  
+  if (m.id === "m1") { g1 = 2; g2 = 1; }
+  else if (m.id === "m2") { g1 = 1; g2 = 1; }
+  else if (m.id === "m3") { g1 = 3; g2 = 1; }
+  else if (m.id === "m4") { g1 = 2; g2 = 0; }
+  else if (m.id === "m5") { g1 = 2; g2 = 2; }
+  else if (m.id === "m6") { g1 = 1; g2 = 0; }
+  else if (m.id === "m7") { g1 = 0; g2 = 2; }
+
+  let kwc = m.knockoutWinnerCode;
+  if (isKnockout && g1 === g2 && !kwc) {
+    kwc = m.isFavoriteTeam1 ? m.team1.code : m.team2.code;
+  }
+
+  return {
+    ...m,
+    simulatedResult1: g1,
+    simulatedResult2: g2,
+    isFinished: true,
+    isLive: false,
+    knockoutWinnerCode: kwc,
+  };
+}

@@ -16,6 +16,7 @@ interface PredictionsDashboardProps {
   onUpdateMatches: (updatedMatches: Match[]) => void;
   onOpenLoginModal: () => void;
   mockSystemTime: Date;
+  syncStatus?: "connecting" | "synced" | "simulation";
 }
 
 export default function PredictionsDashboard({
@@ -26,6 +27,7 @@ export default function PredictionsDashboard({
   onUpdateMatches,
   onOpenLoginModal,
   mockSystemTime,
+  syncStatus = "simulation",
 }: PredictionsDashboardProps) {
   // Estado local dos palpites digitados
   const [localPreds, setLocalPreds] = useState<Record<string, { g1: string; g2: string }>>(() => {
@@ -54,7 +56,6 @@ export default function PredictionsDashboard({
   }, [predictions, matches]);
 
   const [activeTab, setActiveTab] = useState<string>("Todos");
-  const [showAdminSim, setShowAdminSim] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
 
   // Estado para o "Simulador de Pontos" interativo independente
@@ -374,7 +375,7 @@ export default function PredictionsDashboard({
 
       </div>
 
-      {/* 2. ADMIN PANEL TOGGLE & FILTRO GRUPO */}
+      {/* 2. BARRA DE STATUS ONLINE / SIMULAÇÃO E FILTRO */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-neutral-900/40 p-4 border border-white/10 rounded-3xl backdrop-blur-md">
         <div>
           <h2 className="text-lg font-sans font-black uppercase tracking-tight flex items-center gap-2">
@@ -386,29 +387,33 @@ export default function PredictionsDashboard({
           </p>
         </div>
 
-        {/* BOTÃO PARA ALTERAR PLACARES OFICIAIS */}
-        <button
-          id="btn-toggle-simulador"
-          onClick={() => setShowAdminSim(!showAdminSim)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
-            showAdminSim 
-              ? "bg-[#FACC15] text-black shadow-md border border-yellow-400 font-black" 
-              : "bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] text-white"
-          }`}
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${showAdminSim ? "animate-spin" : ""}`} />
-          <span>{showAdminSim ? "Slv. Resultados Reais" : "🔧 Admin: Editar Placares Reais"}</span>
-        </button>
-      </div>
-
-      {showAdminSim && (
-        <div className="p-4 rounded-2xl bg-yellow-400/5 border border-yellow-400/25 text-yellow-250 text-xs text-yellow-300 leading-relaxed font-normal flex items-start gap-2.5">
-          <HelpCircle className="w-5 h-5 shrink-0 mt-0.5 text-yellow-400" />
-          <p>
-            Modo de Administração Ativo! Você pode digitar o placar que quiser no bloco amarelo de qualquer partida abaixo e marcar "Finalizado". O ranking e os pontos dos participantes simularão o desfecho idêntico de forma programada!
-          </p>
+        {/* STATUS INDICATOR BADGE */}
+        <div className="flex items-center gap-2">
+          {syncStatus === "synced" && (
+            <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>📡 Resultados Sincronizados Online</span>
+            </span>
+          )}
+          {syncStatus === "simulation" && (
+            <span className="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              <span>⏱️ Simulação Temporal Ativa</span>
+            </span>
+          )}
+          {syncStatus === "connecting" && (
+            <span className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-[10px] font-black uppercase px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm animate-pulse">
+              <span>🔄 Conectando aos resultados...</span>
+            </span>
+          )}
         </div>
-      )}
+      </div>
 
       {/* TABS DE FILTRO POR GRUPO */}
       <div className="overflow-x-auto scrollbar-none">
@@ -637,85 +642,6 @@ export default function PredictionsDashboard({
                     <span className="text-[10px] text-slate-500 font-bold uppercase italic">Sem palpites salvos</span>
                   )}
                 </div>
-
-                {/* PAINEL DE ADMIN COMPLEMENTAR DE SIMULADOR DE JOGO REAL */}
-                {showAdminSim && (
-                  <div className="p-3 bg-yellow-400/5 border-t border-yellow-400/20 flex flex-wrap justify-between items-center gap-3 text-xs">
-                    <span className="font-bold text-yellow-300 uppercase tracking-widest text-[9px]">Admin: Resultado Placar Oficial</span>
-                    <div className="flex items-center gap-2">
-                      <div className="bg-black/40 px-2 py-1 rounded border border-white/10 flex items-center gap-1.5 text-xs text-white">
-                        <span>{match.team1.code}</span>
-                        <input
-                          type="number"
-                          min="0"
-                          defaultValue={match.simulatedResult1 ?? 0}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            if (!isNaN(val)) {
-                              handleSimulateGameResult(match.id, val, match.simulatedResult2 ?? 0, match.isFinished ?? false);
-                            }
-                          }}
-                          className="w-10 h-6 bg-neutral-900 border border-white/20 rounded text-center text-xs font-black"
-                        />
-                        <span>x</span>
-                        <input
-                          type="number"
-                          min="0"
-                          defaultValue={match.simulatedResult2 ?? 0}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            if (!isNaN(val)) {
-                              handleSimulateGameResult(match.id, match.simulatedResult1 ?? 0, val, match.isFinished ?? false);
-                            }
-                          }}
-                          className="w-10 h-6 bg-neutral-900 border border-white/20 rounded text-center text-xs font-black"
-                        />
-                        <span>{match.team2.code}</span>
-                      </div>
-
-                      <label className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-slate-300 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={match.isFinished ?? false}
-                          onChange={(e) => {
-                            handleSimulateGameResult(
-                              match.id,
-                              match.simulatedResult1 ?? 0,
-                              match.simulatedResult2 ?? 0,
-                              e.target.checked
-                            );
-                          }}
-                          className="rounded text-emerald-500 outline-none"
-                        />
-                        <span>Finalizado</span>
-                      </label>
-
-                      {/* Seletor de Pênaltis para mata-mata em caso de empate */}
-                      {!match.id.startsWith("m") && match.simulatedResult1 !== undefined && match.simulatedResult2 !== undefined && match.simulatedResult1 === match.simulatedResult2 && (
-                        <div className="flex items-center gap-1.5 border-l border-white/10 pl-2">
-                          <span className="text-[9px] uppercase font-bold text-yellow-405 text-yellow-300">Pênaltis:</span>
-                          <select
-                            value={match.knockoutWinnerCode || ""}
-                            onChange={(e) => {
-                              handleSimulateGameResult(
-                                match.id,
-                                match.simulatedResult1 ?? 0,
-                                match.simulatedResult2 ?? 0,
-                                match.isFinished ?? false,
-                                e.target.value
-                              );
-                            }}
-                            className="bg-neutral-950 border border-white/20 rounded text-[10px] font-bold p-1 text-white focus:outline-none"
-                          >
-                            <option value="">Vencedor...</option>
-                            <option value={match.team1.code}>{match.team1.name}</option>
-                            <option value={match.team2.code}>{match.team2.name}</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
 
               </div>
             );

@@ -18,6 +18,7 @@ import {
   mockPredictions,
   buildLeaderboard,
   resolveTournamentBracket,
+  getAutomatedMatchStatus,
 } from "./initialData";
 import { Trophy, Award, Gamepad2, Info, Star, ShieldAlert, Sparkles, Gift } from "lucide-react";
 // @ts-ignore
@@ -51,6 +52,10 @@ export default function App() {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
+  // Estados para sincronização de resultados online e status de sync
+  const [onlineMatches, setOnlineMatches] = useState<any[]>([]);
+  const [syncStatus, setSyncStatus] = useState<"connecting" | "synced" | "simulation">("connecting");
+
   // Tempo simulado global do sistema (Por padrão dia 06/06 - livre para apostas)
   const [mockSystemTime, setMockSystemTime] = useState<Date>(() => {
     const saved = localStorage.getItem("pokabas_system_time");
@@ -63,6 +68,33 @@ export default function App() {
   };
 
   // 2. Sincronização automática de dados
+  // 2. Efeito de sincronização de resultados online (polling)
+  useEffect(() => {
+    const fetchOnlineScores = async () => {
+      try {
+        const res = await fetch("/api/matches");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.source === "online" && data.matches && data.matches.length > 0) {
+            setOnlineMatches(data.matches);
+            setSyncStatus("synced");
+          } else {
+            setSyncStatus("simulation");
+          }
+        } else {
+          setSyncStatus("simulation");
+        }
+      } catch (err) {
+        console.warn("Failed to fetch online scores, using temporal simulation:", err);
+        setSyncStatus("simulation");
+      }
+    };
+
+    fetchOnlineScores();
+    const interval = setInterval(fetchOnlineScores, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (user) {
       const savedUserPreds = localStorage.getItem(`pokabas_preds_u_${user.id}`);
@@ -120,10 +152,18 @@ export default function App() {
     setMatches(updatedMatches);
   };
 
-  // Compilar Classificação dinamicamente baseada nos palpites salvos
+  // Aplicar o status automático temporal ou online para cada partida
+  const activeMatches = useMemo(() => {
+    return matches.map((m) => {
+      const onlineMatch = onlineMatches.find((om) => om.id === m.id);
+      return getAutomatedMatchStatus(m, mockSystemTime, onlineMatch);
+    });
+  }, [matches, mockSystemTime, onlineMatches]);
+
+  // Resolver o chaveamento a partir dos jogos ativos
   const resolvedMatches = useMemo(() => {
-    return resolveTournamentBracket(matches);
-  }, [matches]);
+    return resolveTournamentBracket(activeMatches);
+  }, [activeMatches]);
 
   const leaderboard: LeaderboardUser[] = useMemo(() => {
     return buildLeaderboard(resolvedMatches, user, predictions, mockUsers, allPredictions);
@@ -285,11 +325,12 @@ export default function App() {
               onUpdateMatches={handleUpdateMatches}
               onOpenLoginModal={() => setIsLoginModalOpen(true)}
               mockSystemTime={mockSystemTime}
+              syncStatus={syncStatus}
             />
           )}
 
           {activeTab === "copa" && (
-            <CopaTournament matches={matches} />
+            <CopaTournament matches={activeMatches} />
           )}
 
           {activeTab === "ranking" && (
