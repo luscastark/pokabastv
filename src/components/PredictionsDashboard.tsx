@@ -247,27 +247,31 @@ export default function PredictionsDashboard({
   }, [simMatchSelected, simUserPredGoals1, simUserPredGoals2, simRealResultGoals1, simRealResultGoals2]);
 
   return (
-    <div className="space-y-6 text-white leading-relaxed">
+    <div className="relative text-white leading-relaxed">
       
-      {/* BANNER GIGANTE HERO COM FADE DE TRANSIÇÃO (Estilo Referência) */}
-      <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-white/5 bg-neutral-950 aspect-[16/7] md:aspect-[21/9] select-none group">
+      {/* BANNER COMO BACKGROUND DA PÁGINA INICIAL - Sem cortes e com fade */}
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] md:h-[600px] z-0 overflow-hidden pointer-events-none">
         <img
           src={unipioBanner}
-          alt="Bolão UNIPIO Pokabas TV"
-          className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-102"
+          alt="Background Banner"
+          className="w-full h-full object-contain object-top opacity-30 sm:opacity-40"
           referrerPolicy="no-referrer"
         />
-        {/* Fade de transição para a sessão de baixo */}
-        <div className="absolute inset-x-0 bottom-0 h-28 md:h-44 bg-gradient-to-t from-[#0B1528] via-[#0B1528]/70 to-transparent pointer-events-none"></div>
+        {/* Fade de transição para a seção de baixo e laterais */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1528] via-[#0B1528]/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B1528]/10 via-transparent to-[#0B1528]/35"></div>
       </div>
 
-      {/* 0. HERO DASHBOARD DE ESTATÍSTICAS DO PALPITEIRO (Estilo Chelsea reference) */}
-      <UserStatsHero
-        user={user}
-        leaderboard={leaderboard}
-        predictions={predictions}
-        matches={matches}
-      />
+      {/* Conteúdo principal sobre o Background */}
+      <div className="relative z-10 space-y-6">
+        
+        {/* 0. HERO DASHBOARD DE ESTATÍSTICAS DO PALPITEIRO (Estilo Chelsea reference) */}
+        <UserStatsHero
+          user={user}
+          leaderboard={leaderboard}
+          predictions={predictions}
+          matches={matches}
+        />
       
       {/* 1. SELETOR E COMPONENTE INTEGRADO DE SIMULADOR DE PONTOS EXATO */}
       <div className="p-6 rounded-3xl border border-white/10 bg-neutral-900/40 backdrop-blur-md space-y-4">
@@ -731,6 +735,7 @@ export default function PredictionsDashboard({
         </div>
       )}
 
+      </div>
     </div>
   );
 }
