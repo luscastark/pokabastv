@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Match, Prediction, User, ScoreDetail } from "../types";
+import { Match, Prediction, User, ScoreDetail, LeaderboardUser } from "../types";
 import { calculatePredictionPoints, getFlagUrl } from "../initialData";
 import { Save, Filter, ShieldCheck, Sparkles, AlertCircle, RefreshCw, Trophy, Clock, Lock, Play, Compass, HelpCircle } from "lucide-react";
+import UserStatsHero from "./UserStatsHero";
 
 interface PredictionsDashboardProps {
   user: User | null;
@@ -17,6 +18,7 @@ interface PredictionsDashboardProps {
   onOpenLoginModal: () => void;
   mockSystemTime: Date;
   syncStatus?: "connecting" | "synced" | "simulation";
+  leaderboard: LeaderboardUser[];
 }
 
 export default function PredictionsDashboard({
@@ -28,6 +30,7 @@ export default function PredictionsDashboard({
   onOpenLoginModal,
   mockSystemTime,
   syncStatus = "simulation",
+  leaderboard,
 }: PredictionsDashboardProps) {
   // Estado local dos palpites digitados
   const [localPreds, setLocalPreds] = useState<Record<string, { g1: string; g2: string }>>(() => {
@@ -244,6 +247,14 @@ export default function PredictionsDashboard({
   return (
     <div className="space-y-6 text-white leading-relaxed">
       
+      {/* 0. HERO DASHBOARD DE ESTATÍSTICAS DO PALPITEIRO (Estilo Chelsea reference) */}
+      <UserStatsHero
+        user={user}
+        leaderboard={leaderboard}
+        predictions={predictions}
+        matches={matches}
+      />
+      
       {/* 1. SELETOR E COMPONENTE INTEGRADO DE SIMULADOR DE PONTOS EXATO */}
       <div className="p-6 rounded-3xl border border-white/10 bg-neutral-900/40 backdrop-blur-md space-y-4">
         
@@ -458,42 +469,42 @@ export default function PredictionsDashboard({
               <div
                 key={match.id}
                 id={`match-card-${match.id}`}
-                className={`relative overflow-hidden rounded-3xl border transition-all ${
+                className={`relative overflow-hidden rounded-3xl border transition-all shadow-md hover:shadow-lg ${
                   match.isFinished 
-                    ? "border-emerald-500/30 bg-neutral-950/40" 
+                    ? "border-emerald-500/30 bg-white" 
                     : isMatchLocked 
-                    ? "border-yellow-400/20 bg-neutral-900/10 opacity-90" 
-                    : "border-white/10 bg-neutral-900/30 hover:border-white/20"
+                    ? "border-yellow-500/25 bg-slate-50 opacity-95" 
+                    : "border-slate-100 bg-white hover:border-slate-200"
                 }`}
               >
                 {/* AMBIENT GLOW PARA LOCKS OU FINALS */}
                 {isMatchLocked && (
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-yellow-400"></div>
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-yellow-405 bg-yellow-500"></div>
                 )}
                 {match.isFinished && (
                   <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
                 )}
 
                 {/* HEADER DO CARD */}
-                <div className="px-4 py-2 border-b border-white/5 flex flex-wrap justify-between items-center text-[10px] font-mono tracking-wide text-slate-400 gap-2 bg-white/[0.01]">
+                <div className="px-5 py-3 border-b border-slate-100 flex flex-wrap justify-between items-center text-[10px] font-mono tracking-wide text-slate-400 gap-2 bg-slate-50/50">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="bg-white/10 text-white font-bold px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">
+                    <span className="bg-[#0B1B3D] text-white font-bold px-2 py-0.5 rounded text-[8px] uppercase tracking-wider">
                       {match.group}
                     </span>
-                    <span>{match.date} às {match.time}</span>
+                    <span className="text-slate-500 font-semibold">{match.date} às {match.time}</span>
                   </div>
 
                   {/* CHANGER LOCK BADGE */}
                   {isMatchLocked ? (
                     <span 
-                      className="bg-yellow-450 bg-yellow-500/15 border border-yellow-400/20 text-yellow-400 font-sans font-black uppercase text-[8px] px-2 py-0.5 rounded flex items-center gap-1 shrink-0"
+                      className="bg-yellow-500/10 border border-yellow-400/20 text-yellow-600 font-sans font-black uppercase text-[8px] px-2 py-0.5 rounded flex items-center gap-1 shrink-0"
                       title={lockData.firstGameInfo}
                     >
-                      <Lock className="w-3 h-3 text-yellow-400" />
+                      <Lock className="w-3 h-3 text-yellow-600" />
                       <span>Palpites fecham 1 hora antes da rodada</span>
                     </span>
                   ) : (
-                    <span className="text-slate-400 text-right truncate max-w-[150px] sm:max-w-none">
+                    <span className="text-slate-500 font-semibold text-right truncate max-w-[150px] sm:max-w-none">
                       {match.stadium}
                     </span>
                   )}
@@ -503,13 +514,13 @@ export default function PredictionsDashboard({
                 <div className="p-5 flex flex-col md:flex-row justify-between items-center gap-6">
                   
                   {/* TIME 1 */}
-                  <div className="flex items-center gap-3 w-full md:w-5/12 justify-center md:justify-end text-center md:text-right">
+                  <div className="flex items-center gap-3.5 w-full md:w-5/12 justify-center md:justify-end text-center md:text-right">
                     <div className="space-y-0.5 order-2 md:order-1">
-                      <span className="font-sans font-black uppercase text-sm text-white tracking-tight block">
+                      <span className="font-sans font-black uppercase text-sm text-slate-800 tracking-tight block">
                         {match.team1.name}
                       </span>
                       {match.isFavoriteTeam1 && (
-                        <span className="text-[8px] text-emerald-400 uppercase font-mono font-bold tracking-widest block">
+                        <span className="text-[8px] text-emerald-600 uppercase font-mono font-bold tracking-widest block">
                           ⭐ FAVORITO (+2)
                         </span>
                       )}
@@ -518,7 +529,7 @@ export default function PredictionsDashboard({
                       <img
                         src={getFlagUrl(match.team1.code)}
                         alt={match.team1.name}
-                        className="w-10 h-7 object-cover rounded shadow-sm border border-white/10 order-1 md:order-2"
+                        className="w-10 h-7 object-cover rounded shadow-sm border border-slate-200 order-1 md:order-2"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = "none";
                         }}
@@ -534,7 +545,7 @@ export default function PredictionsDashboard({
                   <div className="flex items-center gap-2.5 justify-center w-full md:w-2/12 py-2 md:py-0 rounded-2xl relative">
                     
                     {isMatchLocked && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[7px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest leading-none">
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-405 bg-yellow-500 text-black text-[7px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest leading-none">
                         LOCKED
                       </div>
                     )}
@@ -548,14 +559,14 @@ export default function PredictionsDashboard({
                       disabled={isMatchLocked}
                       onChange={(e) => handleGoalChange(match.id, 1, e.target.value, isMatchLocked)}
                       placeholder="-"
-                      className={`w-12 h-12 text-center text-xl font-mono font-black rounded-lg border focus:bg-white/[0.08] transition-all outline-none text-white select-all ${
+                      className={`w-12 h-12 text-center text-xl font-mono font-black rounded-lg border focus:bg-slate-50 transition-all outline-none text-slate-850 select-all ${
                         isMatchLocked 
-                          ? "bg-neutral-900 border-white/5 opacity-55 text-slate-500" 
-                          : "bg-white/[0.04] border-white/10 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                          ? "bg-slate-100 border-slate-100 text-slate-400 opacity-60" 
+                          : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#0B1B3D] focus:ring-4 focus:ring-[#0B1B3D]/5"
                       }`}
                     />
 
-                    <span className="text-[10px] font-mono text-slate-450 text-slate-400 uppercase">x</span>
+                    <span className="text-[10px] font-mono text-slate-400 uppercase font-black">x</span>
 
                     <input
                       type="text"
@@ -566,21 +577,21 @@ export default function PredictionsDashboard({
                       disabled={isMatchLocked}
                       onChange={(e) => handleGoalChange(match.id, 2, e.target.value, isMatchLocked)}
                       placeholder="-"
-                      className={`w-12 h-12 text-center text-xl font-mono font-black rounded-lg border focus:bg-white/[0.08] transition-all outline-none text-white select-all ${
+                      className={`w-12 h-12 text-center text-xl font-mono font-black rounded-lg border focus:bg-slate-50 transition-all outline-none text-slate-850 select-all ${
                         isMatchLocked 
-                          ? "bg-neutral-900 border-white/5 opacity-55 text-slate-500" 
-                          : "bg-white/[0.04] border-white/10 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                          ? "bg-slate-100 border-slate-100 text-slate-400 opacity-60" 
+                          : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#0B1B3D] focus:ring-4 focus:ring-[#0B1B3D]/5"
                       }`}
                     />
                   </div>
 
                   {/* TIME 2 */}
-                  <div className="flex items-center gap-3 w-full md:w-5/12 justify-center md:justify-start text-center md:text-left">
+                  <div className="flex items-center gap-3.5 w-full md:w-5/12 justify-center md:justify-start text-center md:text-left">
                     {match.team2.code !== "TBD" ? (
                       <img
                         src={getFlagUrl(match.team2.code)}
                         alt={match.team2.name}
-                        className="w-10 h-7 object-cover rounded shadow-sm border border-white/10"
+                        className="w-10 h-7 object-cover rounded shadow-sm border border-slate-200"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = "none";
                         }}
@@ -591,11 +602,11 @@ export default function PredictionsDashboard({
                       </span>
                     )}
                     <div className="space-y-0.5">
-                      <span className="font-sans font-black uppercase text-sm text-white tracking-tight block">
+                      <span className="font-sans font-black uppercase text-sm text-slate-800 tracking-tight block">
                         {match.team2.name}
                       </span>
                       {!match.isFavoriteTeam1 && (
-                        <span className="text-[8px] text-emerald-400 uppercase font-mono font-bold tracking-widest block">
+                        <span className="text-[8px] text-emerald-600 uppercase font-mono font-bold tracking-widest block">
                           ⭐ FAVORITO (+2)
                         </span>
                       )}
@@ -605,18 +616,18 @@ export default function PredictionsDashboard({
                 </div>
 
                 {/* RODAPÉ DO CARD CONTEÚDO PONTOS */}
-                <div className="px-4 py-3 border-t border-white/5 flex flex-wrap justify-between items-center gap-3 bg-white/[0.01]">
+                <div className="px-5 py-3.5 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3 bg-slate-50/20">
                   
                   {/* RESULTADO OFICIAL */}
                   <div className="flex items-center gap-2">
                     <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Resultado Real:</span>
                     {match.simulatedResult1 !== undefined && match.simulatedResult2 !== undefined ? (
-                      <span className="bg-white/[0.05] border border-white/10 text-white font-mono font-black px-2.5 py-0.5 rounded text-[11px] flex items-center gap-1.5">
+                      <span className="bg-slate-100 border border-slate-200 text-slate-850 font-mono font-black px-2.5 py-0.5 rounded text-[11px] flex items-center gap-1.5">
                         <span>{match.simulatedResult1} x {match.simulatedResult2}</span>
                         {match.isFinished ? (
                           <span className="text-[8px] bg-emerald-500 text-black font-black uppercase px-1 rounded">FIM</span>
                         ) : (
-                          <span className="text-[8px] bg-yellow-405 bg-yellow-300 text-black font-black uppercase px-1 rounded animate-pulse">LIVE</span>
+                          <span className="text-[8px] bg-yellow-500 text-black font-black uppercase px-1 rounded animate-pulse">LIVE</span>
                         )}
                       </span>
                     ) : (
@@ -626,7 +637,7 @@ export default function PredictionsDashboard({
 
                   {/* PONTUAÇÃO CONQUISTADA */}
                   {match.isFinished && savedPred && detailDetail.points > 0 && (
-                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
                       <span>🎉 +{detailDetail.points} Pontos Obtidos</span>
                       <span className="opacity-75">
                         ({detailDetail.isExact ? "Placar Exato" : "Placar Vencedor"})
@@ -635,11 +646,11 @@ export default function PredictionsDashboard({
                   )}
 
                   {match.isFinished && savedPred && detailDetail.points === 0 && (
-                    <span className="text-[9px] uppercase font-bold text-red-400 font-mono">❌ Sem Pontos Nesa Partida</span>
+                    <span className="text-[9px] uppercase font-bold text-red-500 font-mono">❌ Sem Pontos Nesa Partida</span>
                   )}
 
                   {match.isFinished && !savedPred && (
-                    <span className="text-[10px] text-slate-500 font-bold uppercase italic">Sem palpites salvos</span>
+                    <span className="text-[10px] text-slate-405 font-bold uppercase italic">Sem palpites salvos</span>
                   )}
                 </div>
 
