@@ -78,68 +78,13 @@ export default function Header({
   };
 
   // Renderiza a seção de controles comum (Relógio + Troca de Usuário)
+  // Renderiza a seção de controles comum (Troca de Usuário)
   const renderControls = (isDesktop: boolean) => {
-    const showTimeDropdown = isDesktop ? showTimeDropdownDesktop : showTimeDropdownMobile;
-    const setShowTimeDropdown = isDesktop ? setShowTimeDropdownDesktop : setShowTimeDropdownMobile;
     const showSwitchDropdown = isDesktop ? showSwitchDropdownDesktop : showSwitchDropdownMobile;
     const setShowSwitchDropdown = isDesktop ? setShowSwitchDropdownDesktop : setShowSwitchDropdownMobile;
 
     return (
       <div className="flex items-center gap-2.5">
-        {/* SELETOR DE TEMPO SIMULADO DO SISTEMA */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowTimeDropdown(!showTimeDropdown);
-              setShowSwitchDropdown(false);
-            }}
-            className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 hover:bg-white/[0.1] hover:border-white/25 transition-all font-mono text-[11px] font-bold text-yellow-450 text-yellow-400 flex items-center gap-1.5 cursor-pointer shadow-md"
-            title="Ajustar o relógio do sistema para simular bloqueios automatizados"
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span className={isDesktop ? "hidden lg:inline" : "inline"}>
-              Simular Hoje: {getFormattedDate(mockSystemTime)}
-            </span>
-            {!isDesktop && <span className="lg:hidden">Simulador</span>}
-            {isDesktop && <span className="lg:hidden">{getFormattedDate(mockSystemTime).split(" ")[0]}</span>}
-          </button>
-
-          {showTimeDropdown && (
-            <div className="absolute right-0 mt-2 w-64 bg-neutral-900/95 border border-white/15 rounded-xl shadow-2xl p-2 z-50 text-xs text-white backdrop-blur-2xl">
-              <p className="px-2 py-1.5 font-bold uppercase text-[9px] tracking-wider text-slate-400 border-b border-white/5 mb-1.5">
-                Simulador de Horário
-              </p>
-              <div className="space-y-1">
-                {timePresets.map((preset, index) => {
-                  const isSelected = getFormattedDate(mockSystemTime) === getFormattedDate(preset.time);
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        onUpdateMockSystemTime(preset.time);
-                        setShowTimeDropdown(false);
-                      }}
-                      className={`w-full text-left px-2.5 py-2 rounded-lg hover:bg-white/[0.08] transition-colors flex flex-col gap-0.5 cursor-pointer ${
-                        isSelected ? "bg-emerald-500/10 border border-emerald-500/25 text-emerald-400" : ""
-                      }`}
-                    >
-                      <span className="font-semibold text-xs leading-none">
-                        {preset.label}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {preset.dateStr}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="pt-2 mt-2 border-t border-white/5 text-[9px] text-yellow-450 text-yellow-400 font-medium px-2">
-                💡 Ajuste para testar a trava de palpites e cálculos automáticos de placares!
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* ESTADO DO USUÁRIO */}
         {user ? (
           <div className="flex items-center gap-2 bg-white/[0.03] rounded-xl pl-2.5 pr-2.5 py-1.5 border border-white/10 relative shadow-md">
@@ -261,28 +206,9 @@ export default function Header({
         </div>
       </header>
 
-      {/* DESKTOP TOP BAR (Centered badge + Right controls) */}
-      <div className="hidden md:flex justify-between items-center w-full px-8 py-5 z-30 relative select-none">
-        {/* Left spacer for symmetry */}
-        <div className="w-1/4"></div>
-
-        {/* Center Pill: Chelsea-style capsule badge */}
-        <div className="flex justify-center w-2/4">
-          <div className="bg-white text-[#0B1528] px-6 py-2 rounded-full font-black shadow-lg flex items-center gap-2.5 text-[10px] uppercase tracking-widest border border-slate-200">
-            <img
-              src={unipioLogo}
-              alt="Crest"
-              className="h-5 w-auto object-contain"
-              referrerPolicy="no-referrer"
-            />
-            <span>Bolão Unipio / Pokabas TV</span>
-          </div>
-        </div>
-
-        {/* Right side controls */}
-        <div className="w-1/4 flex justify-end">
-          {renderControls(true)}
-        </div>
+      {/* DESKTOP TOP BAR (Right controls only) */}
+      <div className="hidden md:flex justify-end items-center w-full px-8 py-5 z-30 relative select-none">
+        {renderControls(true)}
       </div>
     </div>
   );

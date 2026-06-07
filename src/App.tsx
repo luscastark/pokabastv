@@ -170,111 +170,14 @@ export default function App() {
   }, [resolvedMatches, user, predictions, allPredictions]);
 
   return (
-    <div className="min-h-screen bg-[#0B1528] text-slate-100 flex flex-col md:flex-row font-sans relative overflow-hidden selection:bg-emerald-500 selection:text-black">
+    <div className="min-h-screen bg-[#0B1528] text-slate-100 flex flex-col font-sans relative overflow-x-hidden selection:bg-emerald-500 selection:text-black">
       
       {/* CÍRCULOS DE LUZ DECORATIVOS AMBIENTES (Glassmorphism Pro) */}
       <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none select-none"></div>
       <div className="absolute top-2/3 right-1/10 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none select-none"></div>
 
-      {/* 1. SIDEBAR DESKTOP (Alto Contraste Branco, Estilo Referência) */}
-      <aside className="hidden md:flex flex-col w-24 bg-white border-r border-slate-200 shrink-0 h-screen sticky top-0 py-8 items-center justify-between z-40 shadow-sm select-none">
-        {/* Logo Unipio no topo */}
-        <div className="flex flex-col items-center">
-          <img
-            src={unipioLogo}
-            alt="UNIPIO Pokabas TV Logo"
-            className="h-10 w-auto object-contain drop-shadow"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-
-        {/* Ícones de Navegação Verticais */}
-        <nav className="flex flex-col gap-4">
-          <button
-            onClick={() => setActiveTab("palpites")}
-            title="Meus Palpites"
-            className={`p-3.5 rounded-2xl transition-all cursor-pointer ${
-              activeTab === "palpites"
-                ? "bg-[#0B1B3D] text-white shadow-lg shadow-[#0B1B3D]/10"
-                : "text-[#8A9BB4] hover:text-[#0B1B3D] hover:bg-[#F0F4F8]"
-            }`}
-          >
-            <Gamepad2 className="w-5.5 h-5.5" />
-          </button>
-
-          <button
-            onClick={() => setActiveTab("copa")}
-            title="Grupos & Chaveamento"
-            className={`p-3.5 rounded-2xl transition-all cursor-pointer ${
-              activeTab === "copa"
-                ? "bg-[#0B1B3D] text-white shadow-lg shadow-[#0B1B3D]/10"
-                : "text-[#8A9BB4] hover:text-[#0B1B3D] hover:bg-[#F0F4F8]"
-            }`}
-          >
-            <Trophy className="w-5.5 h-5.5" />
-          </button>
-
-          <button
-            onClick={() => setActiveTab("ranking")}
-            title="Mesa de Líderes"
-            className={`p-3.5 rounded-2xl transition-all cursor-pointer ${
-              activeTab === "ranking"
-                ? "bg-[#0B1B3D] text-white shadow-lg shadow-[#0B1B3D]/10"
-                : "text-[#8A9BB4] hover:text-[#0B1B3D] hover:bg-[#F0F4F8]"
-            }`}
-          >
-            <Award className="w-5.5 h-5.5" />
-          </button>
-
-          <button
-            onClick={() => setActiveTab("premios")}
-            title="Prêmios"
-            className={`p-3.5 rounded-2xl transition-all cursor-pointer ${
-              activeTab === "premios"
-                ? "bg-[#0B1B3D] text-white shadow-lg shadow-[#0B1B3D]/10"
-                : "text-[#8A9BB4] hover:text-[#0B1B3D] hover:bg-[#F0F4F8]"
-            }`}
-          >
-            <Gift className="w-5.5 h-5.5" />
-          </button>
-
-          <button
-            onClick={() => setActiveTab("regulamento")}
-            title="Regulamento"
-            className={`p-3.5 rounded-2xl transition-all cursor-pointer ${
-              activeTab === "regulamento"
-                ? "bg-[#0B1B3D] text-white shadow-lg shadow-[#0B1B3D]/10"
-                : "text-[#8A9BB4] hover:text-[#0B1B3D] hover:bg-[#F0F4F8]"
-            }`}
-          >
-            <Info className="w-5.5 h-5.5" />
-          </button>
-        </nav>
-
-        {/* Login/Logout na parte inferior */}
-        <div className="flex flex-col items-center">
-          {user ? (
-            <button
-              onClick={handleLogout}
-              title="Sair"
-              className="p-3.5 rounded-2xl text-[#8A9BB4] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
-            >
-              <LogOut className="w-5.5 h-5.5" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsLoginModalOpen(true)}
-              title="Entrar"
-              className="p-3.5 rounded-2xl text-[#8A9BB4] hover:text-[#0D1527] hover:bg-slate-100 transition-all cursor-pointer"
-            >
-              <LogIn className="w-5.5 h-5.5" />
-            </button>
-          )}
-        </div>
-      </aside>
-
-      {/* ÁREA PRINCIPAL DA PÁGINA (Direita no Desktop, Inteira no Mobile) */}
-      <div className="flex-grow flex flex-col min-w-0 min-h-screen">
+      {/* ÁREA PRINCIPAL DA PÁGINA (Inteira em todos os dispositivos) */}
+      <div className="flex-grow flex flex-col min-w-0 min-h-screen pb-28">
         
         {/* Header Adaptativo (Top bar no desktop, Header fixo no mobile) */}
         <Header
@@ -325,62 +228,93 @@ export default function App() {
         </main>
       </div>
 
-      {/* 4. NAVEGAÇÃO MOBILE BOT-BAR (Mantendo responsividade mobile-first) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0A0F1E]/95 border-t border-white/10 shadow-2xl py-2 px-4 flex md:hidden justify-around items-center z-45 select-none rounded-t-3xl backdrop-blur-3xl">
-        <button
-          id="btn-tab-mobile-palpites"
-          onClick={() => setActiveTab("palpites")}
-          className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-            activeTab === "palpites" ? "text-emerald-400" : "text-slate-500"
-          }`}
-        >
-          <Gamepad2 className="w-5.5 h-5.5" />
-          <span className="text-[9px] font-black uppercase tracking-tight">Palpites</span>
-        </button>
+      {/* BARRA DE NAVEGAÇÃO FIXA NA PARTE INFERIOR (Responsiva e Premium) */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 select-none pb-safe">
+        <div className="mx-auto w-full md:max-w-2xl bg-[#0A0F1E]/95 md:bg-white border-t border-white/10 md:border md:border-slate-100 md:rounded-2xl py-3 px-6 shadow-2xl md:shadow-emerald-500/5 backdrop-blur-3xl md:backdrop-blur-none flex justify-around md:justify-between items-center gap-2 md:bottom-4 md:relative">
+          
+          <button
+            onClick={() => setActiveTab("palpites")}
+            className={`flex flex-col md:flex-row items-center gap-1 md:gap-2 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === "palpites"
+                ? "text-emerald-450 md:bg-[#0B1B3D] md:text-white"
+                : "text-slate-500 md:text-[#8A9BB4] md:hover:text-[#0B1B3D]"
+            }`}
+          >
+            <Gamepad2 className="w-5.5 h-5.5 md:w-4.5 md:h-4.5" />
+            <span className="text-[9px] md:text-xs font-black uppercase tracking-tight md:tracking-wider">Palpites</span>
+          </button>
 
-        <button
-          id="btn-tab-mobile-copa"
-          onClick={() => setActiveTab("copa")}
-          className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-            activeTab === "copa" ? "text-emerald-400" : "text-slate-500"
-          }`}
-        >
-          <Trophy className="w-5.5 h-5.5" />
-          <span className="text-[9px] font-black uppercase tracking-tight">Copa 2026</span>
-        </button>
+          <button
+            onClick={() => setActiveTab("copa")}
+            className={`flex flex-col md:flex-row items-center gap-1 md:gap-2 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === "copa"
+                ? "text-emerald-450 md:bg-[#0B1B3D] md:text-white"
+                : "text-slate-500 md:text-[#8A9BB4] md:hover:text-[#0B1B3D]"
+            }`}
+          >
+            <Trophy className="w-5.5 h-5.5 md:w-4.5 md:h-4.5" />
+            <span className="text-[9px] md:text-xs font-black uppercase tracking-tight md:tracking-wider">Copa 2026</span>
+          </button>
 
-        <button
-          id="btn-tab-mobile-ranking"
-          onClick={() => setActiveTab("ranking")}
-          className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-            activeTab === "ranking" ? "text-emerald-400" : "text-slate-500"
-          }`}
-        >
-          <Trophy className="w-5.5 h-5.5" />
-          <span className="text-[9px] font-black uppercase tracking-tight">Líderes</span>
-        </button>
+          <button
+            onClick={() => setActiveTab("ranking")}
+            className={`flex flex-col md:flex-row items-center gap-1 md:gap-2 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === "ranking"
+                ? "text-emerald-455 text-emerald-400 md:bg-[#0B1B3D] md:text-white"
+                : "text-slate-500 md:text-[#8A9BB4] md:hover:text-[#0B1B3D]"
+            }`}
+          >
+            <Trophy className="w-5.5 h-5.5 md:w-4.5 md:h-4.5" />
+            <span className="text-[9px] md:text-xs font-black uppercase tracking-tight md:tracking-wider">Líderes</span>
+          </button>
 
-        <button
-          id="btn-tab-mobile-premios"
-          onClick={() => setActiveTab("premios")}
-          className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-            activeTab === "premios" ? "text-emerald-450 text-emerald-400" : "text-slate-500"
-          }`}
-        >
-          <Gift className="w-5.5 h-5.5" />
-          <span className="text-[9px] font-black uppercase tracking-tight">Prêmios</span>
-        </button>
+          <button
+            onClick={() => setActiveTab("premios")}
+            className={`flex flex-col md:flex-row items-center gap-1 md:gap-2 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === "premios"
+                ? "text-emerald-455 text-emerald-400 md:bg-[#0B1B3D] md:text-white"
+                : "text-slate-500 md:text-[#8A9BB4] md:hover:text-[#0B1B3D]"
+            }`}
+          >
+            <Gift className="w-5.5 h-5.5 md:w-4.5 md:h-4.5" />
+            <span className="text-[9px] md:text-xs font-black uppercase tracking-tight md:tracking-wider">Prêmios</span>
+          </button>
 
-        <button
-          id="btn-tab-mobile-regulamento"
-          onClick={() => setActiveTab("regulamento")}
-          className={`flex flex-col items-center gap-1 cursor-pointer transition-colors ${
-            activeTab === "regulamento" ? "text-emerald-450 text-emerald-400" : "text-slate-500"
-          }`}
-        >
-          <Info className="w-5.5 h-5.5" />
-          <span className="text-[9px] font-black uppercase tracking-tight">Regras</span>
-        </button>
+          <button
+            onClick={() => setActiveTab("regulamento")}
+            className={`flex flex-col md:flex-row items-center gap-1 md:gap-2 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              activeTab === "regulamento"
+                ? "text-emerald-455 text-emerald-400 md:bg-[#0B1B3D] md:text-white"
+                : "text-slate-500 md:text-[#8A9BB4] md:hover:text-[#0B1B3D]"
+            }`}
+          >
+            <Info className="w-5.5 h-5.5 md:w-4.5 md:h-4.5" />
+            <span className="text-[9px] md:text-xs font-black uppercase tracking-tight md:tracking-wider">Regras</span>
+          </button>
+
+          <div className="hidden md:block border-l border-slate-200 pl-2">
+            {user ? (
+              <button
+                onClick={handleLogout}
+                title="Sair"
+                className="p-2 rounded-xl text-[#8A9BB4] hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer flex items-center gap-1 text-xs font-black uppercase tracking-wider"
+              >
+                <LogOut className="w-4.5 h-4.5" />
+                <span>Sair</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsLoginModalOpen(true)}
+                title="Entrar"
+                className="p-2 rounded-xl text-emerald-600 hover:text-emerald-500 hover:bg-emerald-50 transition-all cursor-pointer flex items-center gap-1 text-xs font-black uppercase tracking-wider"
+              >
+                <LogIn className="w-4.5 h-4.5" />
+                <span>Entrar</span>
+              </button>
+            )}
+          </div>
+
+        </div>
       </div>
 
       {/* 5. MODAL DE CADASTRO OBRIGATÓRIO */}
